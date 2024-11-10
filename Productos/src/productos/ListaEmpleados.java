@@ -5,12 +5,8 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Insets;
 import java.util.List;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import javax.swing.JLabel;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -21,17 +17,16 @@ import javax.swing.table.TableColumnModel;
 public class ListaEmpleados extends javax.swing.JFrame {
     
     private DefaultTableModel modeloTabla;
-    private Backend backend;
+    private Productos backend;
     
     public ListaEmpleados() {
-        backend = new Backend();
+        backend = new Productos();
         initComponents();
         
         jScrollPane1.getViewport().setBackground(new Color(250,241,233));
         setTitle("Lista de Empleados");
         jTextField1.setBorder(new CompoundBorder(jTextField1.getBorder(),new EmptyBorder(new Insets(5, 10, 5, 10))));
         jButton1.requestFocusInWindow();
-        agregarFocusListeners();
         
         Color colorEncabezado = new Color(250,241,233);
         
@@ -52,35 +47,6 @@ public class ListaEmpleados extends javax.swing.JFrame {
         ajustarColumnas();
     }
     
-    private void agregarFocusListeners() { 
-        agregarFocusListener(jTextField1, "Nombre, turno o usuario...");
-    }
-    
-    private void agregarFocusListener(JTextField textField, String placeholder) { 
-        textField.setForeground(Color.GRAY);
-        textField.setFont(new Font("SansSerif",Font.BOLD, 13));
-        
-        textField.addFocusListener(new FocusListener() {
-            @Override 
-            public void focusGained(FocusEvent e) {
-                if (textField.getText().equals(placeholder)) {
-                    textField.setText("");
-                    textField.setForeground(Color.BLACK);
-                    textField.setFont(new Font("SansSerif",Font.BOLD, 13));
-                }
-            }
-            
-            @Override
-            public void focusLost(FocusEvent e) {
-                if (textField.getText().isEmpty()) {
-                    textField.setText(placeholder);
-                    textField.setForeground(Color.GRAY);
-                    textField.setFont(new Font("SansSerif",Font.BOLD, 13));
-                }
-            }
-        });
-    }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -96,7 +62,6 @@ public class ListaEmpleados extends javax.swing.JFrame {
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
@@ -106,9 +71,12 @@ public class ListaEmpleados extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(250, 241, 233));
 
         jTextField1.setFont(new java.awt.Font("SansSerif", 1, 13)); // NOI18N
-        jTextField1.setForeground(Color.GRAY);
-        jTextField1.setText("Nombre, turno o usuario...");
         jTextField1.setBorder(null);
+        jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                jTextField1KeyPressed(evt);
+            }
+        });
 
         jButton1.setBackground(new java.awt.Color(69, 81, 114));
         jButton1.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
@@ -124,6 +92,11 @@ public class ListaEmpleados extends javax.swing.JFrame {
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jButton1MouseReleased(evt);
+            }
+        });
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
             }
         });
 
@@ -165,6 +138,11 @@ public class ListaEmpleados extends javax.swing.JFrame {
                 jButton3MouseReleased(evt);
             }
         });
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setBackground(new java.awt.Color(69, 81, 114));
         jButton4.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
@@ -182,21 +160,9 @@ public class ListaEmpleados extends javax.swing.JFrame {
                 jButton4MouseReleased(evt);
             }
         });
-
-        jButton5.setBackground(new java.awt.Color(69, 81, 114));
-        jButton5.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
-        jButton5.setForeground(new java.awt.Color(204, 255, 255));
-        jButton5.setText("Ver Perfil");
-        jButton5.setBorder(null);
-        jButton5.setBorderPainted(false);
-        jButton5.setContentAreaFilled(false);
-        jButton5.setOpaque(true);
-        jButton5.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mousePressed(java.awt.event.MouseEvent evt) {
-                jButton5MousePressed(evt);
-            }
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                jButton5MouseReleased(evt);
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
             }
         });
 
@@ -213,6 +179,11 @@ public class ListaEmpleados extends javax.swing.JFrame {
             }
             public void mouseReleased(java.awt.event.MouseEvent evt) {
                 jButton6MouseReleased(evt);
+            }
+        });
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
             }
         });
 
@@ -242,7 +213,7 @@ public class ListaEmpleados extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1142, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 9, Short.MAX_VALUE))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 400, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -253,9 +224,7 @@ public class ListaEmpleados extends javax.swing.JFrame {
                         .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 121, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
@@ -269,7 +238,6 @@ public class ListaEmpleados extends javax.swing.JFrame {
                     .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButton5, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton6, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE))
@@ -321,14 +289,6 @@ public class ListaEmpleados extends javax.swing.JFrame {
         jButton4.setBackground(new Color(69,81,114));
     }//GEN-LAST:event_jButton4MouseReleased
 
-    private void jButton5MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MousePressed
-        jButton5.setBackground(jButton5.getBackground().darker());
-    }//GEN-LAST:event_jButton5MousePressed
-
-    private void jButton5MouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton5MouseReleased
-        jButton5.setBackground(new Color(69,81,114));
-    }//GEN-LAST:event_jButton5MouseReleased
-
     private void jButton6MousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton6MousePressed
         jButton6.setBackground(jButton6.getBackground().darker());
     }//GEN-LAST:event_jButton6MousePressed
@@ -338,10 +298,62 @@ public class ListaEmpleados extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton6MouseReleased
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        Empleado EmpleadoWindow = new Empleado();
-        EmpleadoWindow.setVisible(true);
+        Empleado empleadoWindow = new Empleado(new Productos(), null, this);
+        empleadoWindow.setVisible(true);
         dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow != -1) {
+            String empleadoId = modeloTabla.getValueAt(selectedRow, 0).toString();
+            Empleado empleadoEWindow = new Empleado(new Productos(), empleadoId, this);
+            empleadoEWindow.setVisible(true);
+            dispose();
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        String criterio = jTextField1.getText().trim();
+        if (criterio.isEmpty()) {
+            cargarDatos();
+        } else {
+            List<String[]> empleados = backend.buscarEmpleados(criterio);
+            actualizarTablaBusqueda(empleados);
+        }
+        ajustarColumnas();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jTextField1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyPressed
+        if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER) { 
+            String criterio = jTextField1.getText().trim();
+            if (criterio.isEmpty()) {
+                cargarDatos();
+            } else {
+                List<String[]> empleados = backend.buscarEmpleados(criterio);
+                actualizarTablaBusqueda(empleados);
+            }
+        }
+        ajustarColumnas();
+    }//GEN-LAST:event_jTextField1KeyPressed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        dispose();
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        int selectedRow = jTable1.getSelectedRow();
+        if (selectedRow != -1) {
+            String empleadoId = modeloTabla.getValueAt(selectedRow, 0).toString();
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(this, "¿Estás seguro de que deseas eliminar este empleado?", "Confirmar eliminación", javax.swing.JOptionPane.YES_NO_OPTION);
+            if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+                backend.eliminarEmpleado(empleadoId);
+                actualizarTabla();
+            }
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this, "Selecciona un empleado para eliminar.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -353,50 +365,42 @@ public class ListaEmpleados extends javax.swing.JFrame {
         List<String[]> empleados = backend.cargarEmpleados();
         for (String[] empleado : empleados) { 
             modeloTabla.addRow(empleado); 
-        } 
+        }
     }
 
     private void ajustarColumnas() {
         TableColumnModel columnModel = jTable1.getColumnModel();
-        
         columnModel.getColumn(0).setPreferredWidth(25);
-        columnModel.getColumn(0).setMaxWidth(35);
-        columnModel.getColumn(0).setMinWidth(25);
-        
         columnModel.getColumn(1).setPreferredWidth(160);
-        columnModel.getColumn(1).setMaxWidth(160);
-        columnModel.getColumn(1).setMinWidth(160);
-        
         columnModel.getColumn(2).setPreferredWidth(200);
-        columnModel.getColumn(2).setMaxWidth(200);
-        columnModel.getColumn(2).setMinWidth(200);
-        
-        columnModel.getColumn(3).setPreferredWidth(90);
-        columnModel.getColumn(3).setMaxWidth(90);
-        columnModel.getColumn(3).setMinWidth(90);
-        
-        columnModel.getColumn(4).setPreferredWidth(200);
-        columnModel.getColumn(4).setMaxWidth(200);
-        columnModel.getColumn(4).setMinWidth(200);
-        
+        columnModel.getColumn(3).setPreferredWidth(100);
+        columnModel.getColumn(4).setPreferredWidth(150);
         columnModel.getColumn(5).setPreferredWidth(200);
-        columnModel.getColumn(5).setMaxWidth(200);
-        columnModel.getColumn(5).setMinWidth(200);
-        
-        columnModel.getColumn(6).setPreferredWidth(60);
-        columnModel.getColumn(6).setMaxWidth(60);
-        columnModel.getColumn(6).setMinWidth(60);
-        
-        columnModel.getColumn(7).setPreferredWidth(100);
-        columnModel.getColumn(7).setMaxWidth(100);
-        columnModel.getColumn(7).setMinWidth(100);
-        
-        columnModel.getColumn(8).setPreferredWidth(100);
-        columnModel.getColumn(8).setMaxWidth(100);
-        columnModel.getColumn(8).setMinWidth(100);
+        columnModel.getColumn(6).setPreferredWidth(80);
+        columnModel.getColumn(7).setPreferredWidth(80);
+        columnModel.getColumn(8).setPreferredWidth(80);
     }
+
     
-    
+    public void actualizarTabla() {
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        List<String[]> empleados = backend.cargarEmpleados();
+        for (String[] empleado : empleados) {
+            model.addRow(empleado);
+        }
+        model.fireTableDataChanged();
+    }
+
+    private void actualizarTablaBusqueda(List<String[]> empleados) { 
+        DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+        model.setRowCount(0);
+        for (String[] empleado : empleados) { 
+            model.addRow(empleado);
+        }
+        model.fireTableDataChanged();
+        ajustarColumnas();
+    }
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -434,7 +438,6 @@ public class ListaEmpleados extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
