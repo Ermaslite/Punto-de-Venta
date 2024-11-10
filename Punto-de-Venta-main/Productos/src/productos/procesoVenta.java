@@ -270,7 +270,6 @@ private int empleado_id;
     }// </editor-fold>//GEN-END:initComponents
 
     private void RealizarventaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RealizarventaActionPerformed
-    // Preguntar si el cliente tiene un código
     int opcion = JOptionPane.showOptionDialog(
             this,
             "¿Tienes código de cliente?",
@@ -281,11 +280,8 @@ private int empleado_id;
             new String[]{"Sí", "No"},
             "No"
     );
-
-    Integer clienteID = null; // Valor por defecto para el cliente ID
-
+    Integer clienteID = null;
     if (opcion == JOptionPane.YES_OPTION) {
-        // Si el cliente tiene un código, pedir el código
         String codigoCliente = JOptionPane.showInputDialog(this, "Ingresa el código de cliente");
 
         if (codigoCliente != null && !codigoCliente.isEmpty()) {
@@ -295,15 +291,13 @@ private int empleado_id;
                 clienteID = Productos.obtenerClienteID(codigoCliente);
             } else {
                 JOptionPane.showMessageDialog(this, "Cliente no encontrado. Por favor, verifica el código e inténtalo de nuevo.", "Cliente no encontrado", JOptionPane.ERROR_MESSAGE);
-                return; // Salir del método para que el usuario pueda corregir el error
+                return; 
             }
         } else {
             JOptionPane.showMessageDialog(this, "No se ingresó un código de cliente. Por favor, ingresa un código válido.", "Sin código de cliente", JOptionPane.WARNING_MESSAGE);
-            return; // Salir del método para que el usuario pueda intentar de nuevo
+            return;
         }
     }
-
-    // Guardar la venta
     Productos.guardarVenta(this, this.empleado_id, clienteID, jTable1, Dinerovendido, Dinerocaja);
     this.dispose();
     procesoVenta nuevaVenta = new procesoVenta(this.Usuarios.getText());
@@ -314,7 +308,14 @@ private int empleado_id;
     }//GEN-LAST:event_RealizarventaActionPerformed
 
     private void CerrarCajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CerrarCajaActionPerformed
-        // TODO add your handling code here:
+    // Restablecer el dinero en caja a 2000
+        Dinerocaja.setText("2000.00"); // Restablecer a valor inicial
+    // Cerrar la sesión del empleado actual (cerrar la ventana actual)
+    this.dispose();
+    // Redirigir a la pantalla de inicio
+    Inicio inicio = new Inicio();
+    inicio.setVisible(true);
+
     }//GEN-LAST:event_CerrarCajaActionPerformed
 
     private void EliminarproductoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EliminarproductoActionPerformed

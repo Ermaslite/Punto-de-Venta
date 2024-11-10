@@ -15,6 +15,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+import javax.swing.JLabel;
+import javax.swing.JTable;
+
 //Erik Inicio 1
 public class Productos {
      
@@ -416,7 +421,23 @@ public class Productos {
         return empleado_id;
     }
     //-------------------------------------------------------------------------Erik----Inicio2
-   
+   public static int obtenerIDProducto(String codigoProducto) {
+    int idProducto = -1;
+    try (Connection connection = DriverManager.getConnection(burl, busername, bpassword)) {
+        String query = "SELECT IDproducto FROM Inventario WHERE CodigoBarras = ?";
+        PreparedStatement stmt = connection.prepareStatement(query);
+        stmt.setString(1, codigoProducto);
+        ResultSet rs = stmt.executeQuery();
+
+        if (rs.next()) {
+            idProducto = rs.getInt("IDproducto");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return idProducto;
+}
+
     private static final String burl = "jdbc:mysql://localhost:3306/puntoventa";
     private static final String busername = "root";
     private static final String bpassword = "Roderik2442$";
@@ -425,27 +446,58 @@ public static void guardarVenta(procesoVenta frame, int empleado_id, Integer Cli
     double totalVendido = Double.parseDouble(Dinerovendido.getText());
     double dineroEnCaja = Double.parseDouble(Dinerocaja.getText());
 
-    try (Connection connection = DriverManager.getConnection(burl, busername, bpassword)) {
-        String query = "INSERT INTO Ventas (FechaVenta, empleado_id, ClienteID, Total, DineroEnCaja, DineroVendido) VALUES (?, ?, ?, ?, ?, ?)";
-        PreparedStatement stmt = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS);
-        stmt.setDate(1, new java.sql.Date(System.currentTimeMillis()));
-        stmt.setInt(2, empleado_id);
-        if (ClienteID == null) {
-            stmt.setNull(3, java.sql.Types.INTEGER);
-        } else {
-            stmt.setInt(3, ClienteID);
-        }
-        stmt.setDouble(4, totalVendido); // Utilizamos sólo Dinerovendido para el total a pagar
-        stmt.setDouble(5, dineroEnCaja);
-        stmt.setDouble(6, totalVendido);
-        stmt.executeUpdate();
+    Connection connection = null;
+    try {
+        connection = DriverManager.getConnection(burl, busername, bpassword);
+        connection.setAutoCommit(false); // Iniciar transacción
 
-        ResultSet generatedKeys = stmt.getGeneratedKeys();
-        if (generatedKeys.next()) {
-            int ventaID = generatedKeys.getInt(1);
-            // Llama a writeTicket después de obtener el ID de la venta
-            Ticket.writeTicket(frame.getUsuario(), ventaID);
+        // Guardar la venta
+        String ventaQuery = "INSERT INTO Ventas (FechaVenta, empleado_id, ClienteID, Total, DineroEnCaja, DineroVendido) VALUES (?, ?, ?, ?, ?, ?)";
+        PreparedStatement ventaStmt = connection.prepareStatement(ventaQuery, PreparedStatement.RETURN_GENERATED_KEYS);
+        ventaStmt.setDate(1, new java.sql.Date(System.currentTimeMillis()));
+        ventaStmt.setInt(2, empleado_id);
+        if (ClienteID == null) {
+            ventaStmt.setNull(3, java.sql.Types.INTEGER);
+        } else {
+            ventaStmt.setInt(3, ClienteID);
         }
+        ventaStmt.setDouble(4, totalVendido); // Utilizamos sólo Dinerovendido para el total a pagar
+        ventaStmt.setDouble(5, dineroEnCaja);
+        ventaStmt.setDouble(6, totalVendido);
+        ventaStmt.executeUpdate();
+
+        ResultSet generatedKeys = ventaStmt.getGeneratedKeys();
+        int ventaID = 0;
+        if (generatedKeys.next()) {
+            ventaID = generatedKeys.getInt(1);
+        }
+
+        // Guardar los detalles de la venta
+        String detalleQuery = "INSERT INTO DetalleVentas (VentaID, IDproducto, Cantidad, PrecioUnitario) VALUES (?, ?, ?, ?)";
+        PreparedStatement detalleStmt = connection.prepareStatement(detalleQuery);
+
+        for (int i = 0; i < jTable1.getRowCount(); i++) {
+            String codigoProducto = jTable1.getValueAt(i, 2).toString();
+            int idProducto = obtenerIDProducto(codigoProducto); // Obtener IDproducto desde codigo
+            if (idProducto == -1) {
+                JOptionPane.showMessageDialog(frame, "Error: Producto no encontrado en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+                continue; // Saltar esta fila si el ID de producto no es válido
+            }
+            int cantidad = Integer.parseInt(jTable1.getValueAt(i, 4).toString());
+            double precioUnitario = Double.parseDouble(jTable1.getValueAt(i, 3).toString());
+
+            detalleStmt.setInt(1, ventaID);
+            detalleStmt.setInt(2, idProducto);
+            detalleStmt.setInt(3, cantidad);
+            detalleStmt.setDouble(4, precioUnitario);
+            detalleStmt.addBatch();
+        }
+        detalleStmt.executeBatch();
+
+        connection.commit(); // Confirmar transacción
+
+        // Generar el ticket
+        Ticket.writeTicket(frame.getUsuario(), jTable1, totalVendido);
 
         JOptionPane.showMessageDialog(frame, "Venta guardada con éxito");
 
@@ -456,7 +508,22 @@ public static void guardarVenta(procesoVenta frame, int empleado_id, Integer Cli
         Dinerocaja.setText("2000.00"); // Restablecer a valor inicial
     } catch (Exception e) {
         e.printStackTrace();
+        try {
+            if (connection != null) {
+                connection.rollback(); // Revertir transacción en caso de error
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
         JOptionPane.showMessageDialog(frame, "Error al guardar la venta", "Error", JOptionPane.ERROR_MESSAGE);
+    } finally {
+        try {
+            if (connection != null) {
+                connection.setAutoCommit(true);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 }
 
@@ -499,8 +566,7 @@ public static void guardarVenta(procesoVenta frame, int empleado_id, Integer Cli
         return clienteID;
     }
 
-    // Método para obtener los detalles de la venta
-  public static List<String> obtenerDetallesVenta(int ventaID) {
+ public static List<String> obtenerDetallesVenta(int ventaID) {
     List<String> detallesVenta = new ArrayList<>();
 
     try (Connection connection = DriverManager.getConnection(burl, busername, bpassword)) {
@@ -524,6 +590,8 @@ public static void guardarVenta(procesoVenta frame, int empleado_id, Integer Cli
 
     return detallesVenta;
 }
+
+
 
 
 

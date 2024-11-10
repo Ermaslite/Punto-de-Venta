@@ -4,19 +4,19 @@
  */
 package productos;
 
+
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
-import javax.swing.JTable;
 import java.util.Date;
-
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 public class Ticket {
   
-    public static void writeTicket(String nombreEmpleado, int ventaID) {
-        List<String> detallesVenta = Productos.obtenerDetallesVenta(ventaID);
-        double total = Productos.obtenerTotalVenta(ventaID);
+    public static void writeTicket(String nombreEmpleado, JTable jTable1, double total) {
+        DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("ticket.txt", true))) {
             writer.write("********** TICKET DE COMPRA **********");
@@ -30,8 +30,14 @@ public class Ticket {
             writer.write("Productos:");
             writer.newLine();
 
-            for (String detalle : detallesVenta) {
-                writer.write(detalle);
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String fechaHora = tableModel.getValueAt(i, 0).toString();
+                String nombreProducto = tableModel.getValueAt(i, 1).toString();
+                String codigo = tableModel.getValueAt(i, 2).toString();
+                double precio = Double.parseDouble(tableModel.getValueAt(i, 3).toString());
+                int cantidad = Integer.parseInt(tableModel.getValueAt(i, 4).toString());
+
+                writer.write(fechaHora + " " + nombreProducto + " - $" + precio + " x " + cantidad);
                 writer.newLine();
             }
 
