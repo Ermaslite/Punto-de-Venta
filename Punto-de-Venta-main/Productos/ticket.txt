@@ -1,10 +1,25 @@
 ********** TICKET DE COMPRA **********
-Fecha y Hora: Sun Nov 10 13:13:20 CST 2024
+Fecha y Hora: Mon Nov 11 21:18:08 CST 2024
 Atendido por: Ermaslite
 --------------------------------------
 Productos:
+2024-11-11 21:18:04 Doritos - $12.0 x 1
+2024-11-11 21:18:05 Doritos - $12.0 x 1
 --------------------------------------
-Total a pagar: $70.0
+Total a pagar: $24.0
+--------------------------------------
+Gracias por su compra
+**************************************
+
+********** TICKET DE COMPRA **********
+Fecha y Hora: Mon Nov 11 21:21:48 CST 2024
+Atendido por: Ermaslite
+--------------------------------------
+Productos:
+2024-11-11 21:21:42 Pepsi - $14.5 x 1
+2024-11-11 21:21:44 Pepsi - $14.5 x 1
+--------------------------------------
+Total a pagar: $29.0
 --------------------------------------
 Gracias por su compra
 **************************************

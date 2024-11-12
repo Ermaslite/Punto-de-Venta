@@ -442,90 +442,95 @@ public class Productos {
     private static final String busername = "root";
     private static final String bpassword = "Roderik2442$";
 
-public static void guardarVenta(procesoVenta frame, int empleado_id, Integer ClienteID, JTable jTable1, JLabel Dinerovendido, JLabel Dinerocaja) {
-    double totalVendido = Double.parseDouble(Dinerovendido.getText());
-    double dineroEnCaja = Double.parseDouble(Dinerocaja.getText());
 
-    Connection connection = null;
-    try {
-        connection = DriverManager.getConnection(burl, busername, bpassword);
-        connection.setAutoCommit(false); // Iniciar transacción
+    // Método para guardar la venta y sus detalles en una transacción
+    public static void guardarVenta(procesoVenta frame, int empleado_id, Integer ClienteID, JTable jTable1, JLabel Dinerovendido, JLabel Dinerocaja) {
+        double totalVendido = Double.parseDouble(Dinerovendido.getText());
+        double dineroEnCaja = Double.parseDouble(Dinerocaja.getText());
 
-        // Guardar la venta
-        String ventaQuery = "INSERT INTO Ventas (FechaVenta, empleado_id, ClienteID, Total, DineroEnCaja, DineroVendido) VALUES (?, ?, ?, ?, ?, ?)";
-        PreparedStatement ventaStmt = connection.prepareStatement(ventaQuery, PreparedStatement.RETURN_GENERATED_KEYS);
-        ventaStmt.setDate(1, new java.sql.Date(System.currentTimeMillis()));
-        ventaStmt.setInt(2, empleado_id);
-        if (ClienteID == null) {
-            ventaStmt.setNull(3, java.sql.Types.INTEGER);
-        } else {
-            ventaStmt.setInt(3, ClienteID);
-        }
-        ventaStmt.setDouble(4, totalVendido); // Utilizamos sólo Dinerovendido para el total a pagar
-        ventaStmt.setDouble(5, dineroEnCaja);
-        ventaStmt.setDouble(6, totalVendido);
-        ventaStmt.executeUpdate();
-
-        ResultSet generatedKeys = ventaStmt.getGeneratedKeys();
-        int ventaID = 0;
-        if (generatedKeys.next()) {
-            ventaID = generatedKeys.getInt(1);
-        }
-
-        // Guardar los detalles de la venta
-        String detalleQuery = "INSERT INTO DetalleVentas (VentaID, IDproducto, Cantidad, PrecioUnitario) VALUES (?, ?, ?, ?)";
-        PreparedStatement detalleStmt = connection.prepareStatement(detalleQuery);
-
-        for (int i = 0; i < jTable1.getRowCount(); i++) {
-            String codigoProducto = jTable1.getValueAt(i, 2).toString();
-            int idProducto = obtenerIDProducto(codigoProducto); // Obtener IDproducto desde codigo
-            if (idProducto == -1) {
-                JOptionPane.showMessageDialog(frame, "Error: Producto no encontrado en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-                continue; // Saltar esta fila si el ID de producto no es válido
-            }
-            int cantidad = Integer.parseInt(jTable1.getValueAt(i, 4).toString());
-            double precioUnitario = Double.parseDouble(jTable1.getValueAt(i, 3).toString());
-
-            detalleStmt.setInt(1, ventaID);
-            detalleStmt.setInt(2, idProducto);
-            detalleStmt.setInt(3, cantidad);
-            detalleStmt.setDouble(4, precioUnitario);
-            detalleStmt.addBatch();
-        }
-        detalleStmt.executeBatch();
-
-        connection.commit(); // Confirmar transacción
-
-        // Generar el ticket
-        Ticket.writeTicket(frame.getUsuario(), jTable1, totalVendido);
-
-        JOptionPane.showMessageDialog(frame, "Venta guardada con éxito");
-
-        // Reiniciar JTable y total vendido
-        DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
-        tableModel.setRowCount(0);
-        Dinerovendido.setText("0.00");
-        Dinerocaja.setText("2000.00"); // Restablecer a valor inicial
-    } catch (Exception e) {
-        e.printStackTrace();
+        Connection connection = null;
         try {
-            if (connection != null) {
-                connection.rollback(); // Revertir transacción en caso de error
+            connection = DriverManager.getConnection(burl, busername, bpassword);
+            connection.setAutoCommit(false); // Iniciar transacción
+
+            // Insertar una venta
+            String ventaQuery = "INSERT INTO Ventas (FechaVenta, empleado_id, ClienteID, Total, DineroEnCaja, DineroVendido) VALUES (NOW(), ?, ?, ?, ?, ?)";
+            PreparedStatement ventaStmt = connection.prepareStatement(ventaQuery, PreparedStatement.RETURN_GENERATED_KEYS);
+            ventaStmt.setInt(1, empleado_id);
+            if (ClienteID == null) {
+                ventaStmt.setNull(2, java.sql.Types.INTEGER);
+            } else {
+                ventaStmt.setInt(2, ClienteID);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-        JOptionPane.showMessageDialog(frame, "Error al guardar la venta", "Error", JOptionPane.ERROR_MESSAGE);
-    } finally {
-        try {
-            if (connection != null) {
-                connection.setAutoCommit(true);
+            ventaStmt.setDouble(3, totalVendido);
+            ventaStmt.setDouble(4, dineroEnCaja);
+            ventaStmt.setDouble(5, totalVendido);
+            ventaStmt.executeUpdate();
+
+            // Obtener el ID de la venta recién insertada
+            ResultSet generatedKeys = ventaStmt.getGeneratedKeys();
+            int ventaID = 0;
+            if (generatedKeys.next()) {
+                ventaID = generatedKeys.getInt(1);
             }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
+
+            // Insertar detalles de venta
+            String detalleQuery = "INSERT INTO DetalleVentas (VentaID, IDproducto, Cantidad, PrecioUnitario) VALUES (?, ?, ?, ?)";
+            PreparedStatement detalleStmt = connection.prepareStatement(detalleQuery);
+
+            for (int i = 0; i < jTable1.getRowCount(); i++) {
+                String codigoProducto = jTable1.getValueAt(i, 2).toString();
+                int idProducto = obtenerIDProducto(codigoProducto); // Obtener IDproducto desde codigo
+                if (idProducto == -1) {
+                    JOptionPane.showMessageDialog(frame, "Error: Producto no encontrado en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
+                    continue; // Saltar esta fila si el ID de producto no es válido
+                }
+                int cantidad = Integer.parseInt(jTable1.getValueAt(i, 4).toString());
+                double precioUnitario = Double.parseDouble(jTable1.getValueAt(i, 3).toString());
+
+                detalleStmt.setInt(1, ventaID);
+                detalleStmt.setInt(2, idProducto);
+                detalleStmt.setInt(3, cantidad);
+                detalleStmt.setDouble(4, precioUnitario);
+                detalleStmt.addBatch();
+            }
+            detalleStmt.executeBatch();
+
+            connection.commit(); // Confirmar transacción
+
+            // Generar el ticket
+            Ticket.writeTicket(frame.getUsuario(), jTable1, totalVendido);
+
+            // Mostrar mensaje de confirmación
+            JOptionPane.showMessageDialog(frame, "Venta guardada con éxito");
+
+            // Reiniciar JTable y total vendido
+            DefaultTableModel tableModel = (DefaultTableModel) jTable1.getModel();
+            tableModel.setRowCount(0);
+            Dinerovendido.setText("0.00");
+            Dinerocaja.setText("2000.00"); // Restablecer a valor inicial
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                if (connection != null) {
+                    connection.rollback(); // Revertir transacción en caso de error
+                    JOptionPane.showMessageDialog(frame, "Transacción revertida debido a un error.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } finally {
+            try {
+                if (connection != null) {
+                    connection.setAutoCommit(true);
+                    connection.close();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
         }
     }
-}
 
     // Método para verificar si el cliente existe o no
     public static boolean verificarCliente(String codigoCliente) {
@@ -590,13 +595,6 @@ public static void guardarVenta(procesoVenta frame, int empleado_id, Integer Cli
 
     return detallesVenta;
 }
-
-
-
-
-
-
-
    public static double obtenerTotalVenta(int ventaID) {
     double total = 0.0;
 
@@ -615,11 +613,167 @@ public static void guardarVenta(procesoVenta frame, int empleado_id, Integer Cli
 
     return total;
 }
+//--------------------------------------------------------------------------------------------fin ventas Erik
+//-----------------------------------Clientes Erik_------------------
 
+    private static final String aburl = "jdbc:mysql://localhost:3306/puntoventa";
+    private static final String absername = "root";
+    private static final String abassword = "Roderik2442$";
 
+    // Validar los datos del cliente
+    public static boolean validarCliente(String nombre, String direccion, String pais, String curp, String codigoPostal, String telefono, String codigoBarras) {
+        if (!nombre.matches("[a-zA-Z\\s]+")) {
+            JOptionPane.showMessageDialog(null, "El nombre solo debe contener letras y espacios.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (!pais.matches("[a-zA-Z\\s]+")) {
+            JOptionPane.showMessageDialog(null, "El país solo debe contener letras y espacios.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (!curp.matches("[A-Z0-9]{18}") || verificarCurpExistente(curp)) {
+            JOptionPane.showMessageDialog(null, "CURP inválida o ya registrada.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (!codigoPostal.matches("\\d{5,10}")) {
+            JOptionPane.showMessageDialog(null, "El código postal debe tener entre 5 y 10 dígitos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (!telefono.matches("\\d{10,15}")) {
+            JOptionPane.showMessageDialog(null, "El teléfono debe tener entre 10 y 15 dígitos.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        if (verificarCodigoBarrasExistente(codigoBarras)) {
+            JOptionPane.showMessageDialog(null, "Código de barras ya registrado.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
 
+    // Insertar un cliente en la base de datos
+    public static void insertarCliente(String nombre, String direccion, String pais, String curp, String codigoPostal, String telefono, String codigoBarras) {
+        try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
+            String query = "INSERT INTO Clientes (NombreCliente, Direccion, Pais, CURP, CodigoPostal, Telefono, CodigoBarrasCliente) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, nombre);
+            stmt.setString(2, direccion);
+            stmt.setString(3, pais);
+            stmt.setString(4, curp);
+            stmt.setString(5, codigoPostal);
+            stmt.setString(6, telefono);
+            stmt.setString(7, codigoBarras);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Verificar si la CURP ya existe en la base de datos
+    public static boolean verificarCurpExistente(String curp) {
+        try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
+            String query = "SELECT 1 FROM Clientes WHERE CURP = ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, curp);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Verificar si el código de barras ya existe en la base de datos
+    public static boolean verificarCodigoBarrasExistente(String codigoBarras) {
+        try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
+            String query = "SELECT 1 FROM Clientes WHERE CodigoBarrasCliente = ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, codigoBarras);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    // Actualizar la tabla de clientes en la interfaz
+    public static void actualizarTablaClientes(JTable jTable2) {
+        try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
+            String query = "SELECT CodigoBarrasCliente, NombreCliente, Direccion, Telefono FROM Clientes";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            ResultSet rs = stmt.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
+            model.setRowCount(0); // Limpiar tabla
+
+            while (rs.next()) {
+                String codigoBarras = rs.getString("CodigoBarrasCliente");
+                String nombre = rs.getString("NombreCliente");
+                String direccion = rs.getString("Direccion");
+                String telefono = rs.getString("Telefono");
+                model.addRow(new Object[]{codigoBarras, nombre, direccion, telefono});
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
  
+    public static void eliminarCliente(String codigoBarras) {
+        try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
+            String query = "DELETE FROM Clientes WHERE CodigoBarrasCliente = ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, codigoBarras);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al eliminar cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+    // Método para editar un cliente en la base de datos
+    public static void editarCliente(String codigoBarras, String nombre, String direccion, String pais, String curp, String codigoPostal, String telefono) {
+        try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
+            String query = "UPDATE Clientes SET NombreCliente = ?, Direccion = ?, Pais = ?, CURP = ?, CodigoPostal = ?, Telefono = ? WHERE CodigoBarrasCliente = ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, nombre);
+            stmt.setString(2, direccion);
+            stmt.setString(3, pais);
+            stmt.setString(4, curp);
+            stmt.setString(5, codigoPostal);
+            stmt.setString(6, telefono);
+            stmt.setString(7, codigoBarras);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error al editar cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+    // Método para verificar si la CURP ya existe en la base de datos, excluyendo el cliente actual
+    public static boolean verificarCurpExistente(String curp, String codigoBarrasActual) {
+        try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
+            String query = "SELECT 1 FROM Clientes WHERE CURP = ? AND CodigoBarrasCliente <> ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, curp);
+            stmt.setString(2, codigoBarrasActual);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
+   
+
+
+
+
 }
+
+
 
 
 
