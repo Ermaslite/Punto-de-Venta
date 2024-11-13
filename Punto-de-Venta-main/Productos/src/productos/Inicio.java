@@ -1,22 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
-package productos;
+package applogin;
 
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
-import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import javax.swing.JPasswordField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
-/**
- *
- * @author jose
- */
 public class Inicio extends javax.swing.JFrame {
     private boolean isPasswordVisible = false;
     
@@ -25,7 +15,7 @@ public class Inicio extends javax.swing.JFrame {
     public Inicio() {
         backend = new Productos();
         initComponents();
-        setTitle("Punto de Venta");
+        setTitle("Punto de Venta - Registro");
         jTextField1.setBorder(new CompoundBorder(jTextField1.getBorder(),new EmptyBorder(new Insets(5, 10, 5, 10))));
         jPasswordField1.setBorder(new CompoundBorder(jPasswordField1.getBorder(),new EmptyBorder(new Insets(0, 10, 0, 10))));
         
@@ -231,14 +221,13 @@ public class Inicio extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Inicio de sesión exitoso como " + rol);
             switch (rol) {
                 case "Administrador":
-                    
+                    new PAdministrador().setVisible(true);
                     break;
                 case "Caja":
-              procesoVenta pv = new procesoVenta(usuario); 
-              pv.setVisible(true);
+                    new procesoVenta().setVisible(true);
                     break;
                 case "Inventario":
-                    
+                    new inventario().setVisible(true);
                     break;
             }
             this.dispose();
