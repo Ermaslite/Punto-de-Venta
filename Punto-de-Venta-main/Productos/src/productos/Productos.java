@@ -1146,9 +1146,87 @@ public boolean eliminarProducto(String productoId) {
     }
 }
 
+    
+    public List<String> obtenerMarcas() {
+        List<String> marcas = new ArrayList<>();
+        String sql = "SELECT DISTINCT Marca FROM Productos";
+        try (Connection connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+             PreparedStatement pstmt = connection.prepareStatement(sql);
+             java.sql.ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                marcas.add(rs.getString("Marca"));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return marcas;
+    }
+
+    public List<String> obtenerRubros() {
+        List<String> rubros = new ArrayList<>();
+        String sql = "SELECT DISTINCT Rubro FROM Productos";
+        try (Connection connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+             PreparedStatement pstmt = connection.prepareStatement(sql);
+             java.sql.ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                rubros.add(rs.getString("Rubro"));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return rubros;
+    }
+
+    public List<String> obtenerProveedores() {
+        List<String> proveedores = new ArrayList<>();
+        String sql = "SELECT DISTINCT Proveedor FROM Productos";
+        try (Connection connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+             PreparedStatement pstmt = connection.prepareStatement(sql);
+             java.sql.ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                proveedores.add(rs.getString("Proveedor"));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return proveedores;
+    }
 
 
-
+//agustin
+    
+    public List<String[]> obtenerReporteVentas() {
+    List<String[]> reporteVentas = new ArrayList<>();
+    String sql = "SELECT " +
+                 "e.nombre_usuario AS Empleado, " +
+                 "v.FechaVenta AS Fecha, " +
+                 "p.CodigoProducto AS Producto, " +
+                 "dv.Cantidad AS Cantidad, " +
+                 "dv.PrecioUnitario AS PrecioUnitario, " +
+                 "v.Total AS PrecioFinal " +
+                 "FROM ventas v " +
+                 "JOIN empleados e ON v.id_empleado = e.id_empleado " +
+                 "JOIN detalleventas dv ON v.id_venta = dv.id_venta " +
+                 "JOIN productos p ON dv.IDproducto = p.ID";
+    try (Connection connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+         PreparedStatement pstmt = connection.prepareStatement(sql);
+         java.sql.ResultSet rs = pstmt.executeQuery()) {
+        while (rs.next()) {
+            String[] venta = {
+                rs.getString("Empleado"),
+                rs.getString("Fecha"),
+                rs.getString("Producto"),
+                rs.getString("Cantidad"),
+                rs.getString("PrecioUnitario"),
+                rs.getString("PrecioFinal")
+            };
+            reporteVentas.add(venta);
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+    return reporteVentas;
+}
 
 }
 
