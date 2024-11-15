@@ -1,28 +1,34 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
-package productos;
+package applogin;
+
+import java.sql.Blob;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.sql.Connection;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import javax.swing.*;
-import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import javax.swing.table.DefaultTableModel;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
-//Erik Inicio 1
 public class Productos {
-     
+    
+    private String dburl = "jdbc:mysql://localhost:3306/puntoventa";
+    private String dbusername = "root";
+    private String dbpassword = "Saqueme100profe";
+    
+    java.sql.Connection connection = null;
+    PreparedStatement stmt = null;
+    
         static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -34,13 +40,13 @@ public class Productos {
     public static void buscarProducto(String codigo, procesoVenta frame, JTable jTable1, JLabel Dinerovendido) {
         String url = "jdbc:mysql://localhost:3306/puntoventa";
         String user = "root";
-        String password = "Roderik2442$";
+        String password = "Saqueme100profe";
 
         try (Connection connection = DriverManager.getConnection(url, user, password)) {
             String query = "SELECT NombreProducto, Precio FROM Inventario WHERE CodigoBarras = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, codigo);
-            ResultSet resultSet = statement.executeQuery();
+            java.sql.ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 String nombreProducto = resultSet.getString("NombreProducto");
@@ -84,350 +90,56 @@ public class Productos {
     public static void actualizarDineroCaja(JLabel Dinerocaja) { double dineroEnCaja = 2000.00; // Establecer el valor de $2000 
     Dinerocaja.setText(String.valueOf(dineroEnCaja)); }
     
-    //-----------------------------------------------------Erik Fin1
-
-   
-  
-
-/*
     
     
-    */
-    private String dburl = "jdbc:mysql://localhost:3306/puntoventa";
-    private String dbusername = "root";
-    private String dbpassword = "Roderik2442$";
     
-    java.sql.Connection connection = null;
-    PreparedStatement stmt = null;
     
-    public void insertarEmpleado(String nombre, String direccion, String telefono, String correoElectronico, String rfc, String curp, String salario, String nombreUsuario, String contrasena, String turno, String rol) { 
-        try { 
-            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-            String query = "INSERT INTO empleados (nombre, direccion, telefono, correo_electronico, rfc, curp, turno, salario, nombre_usuario, contrasena, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            stmt = connection.prepareStatement(query);
-            
-            stmt.setString(1, nombre);
-            stmt.setString(2, direccion);
-            stmt.setString(3, telefono);
-            stmt.setString(4, correoElectronico);
-            stmt.setString(5, rfc);
-            stmt.setString(6, curp);
-            stmt.setString(7, turno);
-            stmt.setString(8, salario);
-            stmt.setString(9, nombreUsuario);
-            stmt.setString(10, contrasena);
-            stmt.setString(11, rol);
-            
-            stmt.executeUpdate();
-            stmt.close();
-            connection.close();
-        } catch (Exception ex) { 
-            ex.printStackTrace(); 
-        } 
-    }
     
-    public List<String[]> cargarEmpleados() {
-        List<String[]> empleados = new ArrayList<>();
-        
-        java.sql.ResultSet rs = null;
-        try {
-            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-            String query = "SELECT empleado_id, nombre_usuario, telefono, correo_electronico, direccion, turno, rol, nombre, salario FROM empleados";
-            stmt = connection.prepareStatement(query);
-            rs = stmt.executeQuery(query);
-            
-            while (rs.next()) {
-                String[] empleado = new String[]{
-                    rs.getString("empleado_id"),
-                    rs.getString("nombre_usuario"),
-                    rs.getString("nombre"),
-                    rs.getString("telefono"),
-                    rs.getString("correo_electronico"),
-                    rs.getString("direccion"),
-                    rs.getString("turno"),
-                    rs.getString("rol"),
-                    rs.getString("Salario"),
-                    
-                };
-                empleados.add(empleado);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (connection != null) connection.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        return empleados;
-    }
-
-    public String[] obtenerEmpleadoPorId(String empleadoId) {
-        String[] empleado = null;
-        java.sql.ResultSet rs = null;
-        try {
-            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-            String query = "SELECT empleado_id, nombre, direccion, telefono, correo_electronico, rfc, curp, turno, salario, nombre_usuario, contrasena, rol FROM empleados WHERE empleado_id = ?";
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, empleadoId);
-            rs = stmt.executeQuery();
-            
-            if (rs.next()) {
-                empleado = new String[]{
-                    rs.getString("empleado_id"),
-                    rs.getString("nombre"),
-                    rs.getString("direccion"),
-                    rs.getString("telefono"),
-                    rs.getString("correo_electronico"),
-                    rs.getString("rfc"),
-                    rs.getString("curp"),
-                    rs.getString("turno"),
-                    rs.getString("salario"),
-                    rs.getString("nombre_usuario"),
-                    rs.getString("contrasena"),
-                    rs.getString("rol")
-                };
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (connection != null) connection.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        return empleado;
-    }
-
-    public void actualizarEmpleado(String empleadoId, String nombre, String direccion, String telefono, String correoElectronico, String rfc, String curp, String salario, String nombreUsuario, String contrasena, String turno, String rol) {
-        try {
-            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-            String query = "UPDATE empleados SET nombre = ?, direccion = ?, telefono = ?, correo_electronico = ?, rfc = ?, curp = ?, turno = ?, salario = ?, nombre_usuario = ?, contrasena = ?, rol = ? WHERE empleado_id = ?";
-            stmt = connection.prepareStatement(query);
-
-            stmt.setString(1, nombre);
-            stmt.setString(2, direccion);
-            stmt.setString(3, telefono);
-            stmt.setString(4, correoElectronico);
-            stmt.setString(5, rfc);
-            stmt.setString(6, curp);
-            stmt.setString(7, turno);
-            stmt.setString(8, salario);
-            stmt.setString(9, nombreUsuario);
-            stmt.setString(10, contrasena);
-            stmt.setString(11, rol);
-            stmt.setString(12, empleadoId);
-
-            stmt.executeUpdate();
-            stmt.close();
-            connection.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public List<String[]> buscarEmpleados(String criterio) {
-        List<String[]> empleados = new ArrayList<>();
-        java.sql.ResultSet rs = null;
-        try {
-            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-            String query = "SELECT empleado_id, nombre_usuario, nombre, telefono, correo_electronico, direccion, turno, rol, salario FROM empleados WHERE nombre LIKE ? OR turno LIKE ? OR nombre_usuario LIKE ? OR rol LIKE ?";
-            stmt = connection.prepareStatement(query);
-            String searchPattern = "%" + criterio + "%";
-            stmt.setString(1, searchPattern);
-            stmt.setString(2, searchPattern);
-            stmt.setString(3, searchPattern);
-            stmt.setString(4, searchPattern);
-            rs = stmt.executeQuery();
-        
-            while (rs.next()) {
-                String[] empleado = new String[]{
-                    rs.getString("empleado_id"),
-                    rs.getString("nombre_usuario"),
-                    rs.getString("nombre"),
-                    rs.getString("telefono"),
-                    rs.getString("correo_electronico"),
-                    rs.getString("direccion"),
-                    rs.getString("turno"),
-                    rs.getString("rol"),
-                    rs.getString("salario")
-                };
-                empleados.add(empleado);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (connection != null) connection.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        return empleados;
-    }
     
-    public void eliminarEmpleado(String empleadoId) {
-        try {
-            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-            String query = "DELETE FROM empleados WHERE empleado_id = ?";
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, empleadoId);
-            stmt.executeUpdate();
-            stmt.close();
-            connection.close();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public String hashPassword(String password) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] encodedHash = digest.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : encodedHash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
     
-    public void agregarAdministrador(String nombreUsuario, String contrasena, String correo, String nombreCompleto, String telefono, String direccion) {
-        try {
-            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-            String query = "INSERT INTO administrador (nombre_usuario, contrasena, correo, nombre_completo, telefono, direccion) VALUES (?, ?, ?, ?, ?, ?)";
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, nombreUsuario);
-            stmt.setString(2, hashPassword(contrasena));
-            stmt.setString(3, correo);
-            stmt.setString(4, nombreCompleto);
-            stmt.setString(5, telefono);
-            stmt.setString(6, direccion);
-            stmt.executeUpdate();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            try {
-                if (stmt != null)
-                    stmt.close();
-                if (connection != null)
-                    connection.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
     
-    public boolean hayAdministradores() {
-        boolean existenAdmins = false;
-        java.sql.ResultSet rs = null;
     
-        try {
-            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-            String query = "SELECT COUNT(*) AS total FROM administrador";
-            stmt = connection.prepareStatement(query);
-            rs = stmt.executeQuery();
-        
-            if (rs.next()) {
-                existenAdmins = rs.getInt("total") > 0;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stmt != null) stmt.close();
-                if (connection != null) connection.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-        return existenAdmins;
-    }
-
-    public boolean verificarCredenciales(String usuario, String contrasena, String rol) {
-    java.sql.ResultSet rs = null;
-    boolean credencialesValidas = false;
     
-    try {
-        connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
-        String query;
-
-        if ("Administrador".equals(rol)) {
-            query = "SELECT * FROM administrador WHERE nombre_usuario = ? AND contrasena = ?";
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, usuario);
-            stmt.setString(2, contrasena); // Usar la contraseña encriptada directamente
-        } else {
-            query = "SELECT * FROM empleados WHERE nombre_usuario = ? AND contrasena = ? AND rol = ?";
-            stmt = connection.prepareStatement(query);
-            stmt.setString(1, usuario);
-            stmt.setString(2, contrasena); // Contraseña no encriptada
-            stmt.setString(3, rol);
-        }
-
-        rs = stmt.executeQuery();
-
-        if (rs.next()) {
-            credencialesValidas = true;
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-    } finally {
-        try {
-            if (rs != null) rs.close();
-            if (stmt != null) stmt.close();
-            if (connection != null) connection.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    return credencialesValidas;
-}
     
-   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
-    private static final String url = "jdbc:mysql://localhost:3306/puntoventa";
-    private static final String username = "root";
-    private static final String password = "Roderik2442$";
+    
 
-    public static int obtenerIdEmpleado(String nombreUsuario) {
-        int empleado_id = -1;
+    
+    
+    
+    
+    
 
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
-            String query = "SELECT empleado_id FROM empleados WHERE nombre_usuario = ?";
-            PreparedStatement stmt = connection.prepareStatement(query);
-            stmt.setString(1, nombreUsuario);
-            ResultSet rs = stmt.executeQuery();
+    
 
-            if (rs.next()) {
-                empleado_id = rs.getInt("empleado_id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return empleado_id;
-    }
-    //-------------------------------------------------------------------------Erik----Inicio2
-   public static int obtenerIDProducto(String codigoProducto) {
+
+    
+    
+    
+    
+    public static int obtenerIDProducto(String codigoProducto) {
     int idProducto = -1;
     try (Connection connection = DriverManager.getConnection(burl, busername, bpassword)) {
         String query = "SELECT IDproducto FROM Inventario WHERE CodigoBarras = ?";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setString(1, codigoProducto);
-        ResultSet rs = stmt.executeQuery();
+        java.sql.ResultSet rs = stmt.executeQuery();
 
         if (rs.next()) {
             idProducto = rs.getInt("IDproducto");
@@ -440,7 +152,7 @@ public class Productos {
 
     private static final String burl = "jdbc:mysql://localhost:3306/puntoventa";
     private static final String busername = "root";
-    private static final String bpassword = "Roderik2442$";
+    private static final String bpassword = "Saqueme100profe";
 
 
     // Método para guardar la venta y sus detalles en una transacción
@@ -468,7 +180,7 @@ public class Productos {
             ventaStmt.executeUpdate();
 
             // Obtener el ID de la venta recién insertada
-            ResultSet generatedKeys = ventaStmt.getGeneratedKeys();
+            java.sql.ResultSet generatedKeys = ventaStmt.getGeneratedKeys();
             int ventaID = 0;
             if (generatedKeys.next()) {
                 ventaID = generatedKeys.getInt(1);
@@ -517,7 +229,7 @@ public class Productos {
                     connection.rollback(); // Revertir transacción en caso de error
                     JOptionPane.showMessageDialog(frame, "Transacción revertida debido a un error.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (SQLException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         } finally {
@@ -526,7 +238,7 @@ public class Productos {
                     connection.setAutoCommit(true);
                     connection.close();
                 }
-            } catch (SQLException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -540,7 +252,7 @@ public class Productos {
             String query = "SELECT * FROM Clientes WHERE CodigoBarrasCliente = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, codigoCliente);
-            ResultSet rs = stmt.executeQuery();
+            java.sql.ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
                 clienteExiste = true;
@@ -560,7 +272,7 @@ public class Productos {
             String query = "SELECT ClienteID FROM Clientes WHERE CodigoBarrasCliente = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, codigoCliente);
-            ResultSet rs = stmt.executeQuery();
+            java.sql.ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
                 clienteID = rs.getInt("ClienteID");
@@ -581,7 +293,7 @@ public class Productos {
                        "WHERE d.VentaID = ?";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setInt(1, ventaID);
-        ResultSet rs = stmt.executeQuery();
+        java.sql.ResultSet rs = stmt.executeQuery();
 
         while (rs.next()) {
             String producto = rs.getString("NombreProducto");
@@ -602,7 +314,7 @@ public class Productos {
         String query = "SELECT Total FROM Ventas WHERE VentaID = ?";
         PreparedStatement stmt = connection.prepareStatement(query);
         stmt.setInt(1, ventaID);
-        ResultSet rs = stmt.executeQuery();
+        java.sql.ResultSet rs = stmt.executeQuery();
 
         if (rs.next()) {
             total = rs.getDouble("Total");
@@ -618,7 +330,7 @@ public class Productos {
 
     private static final String aburl = "jdbc:mysql://localhost:3306/puntoventa";
     private static final String absername = "root";
-    private static final String abassword = "Roderik2442$";
+    private static final String abassword = "Saqueme100profe";
 
     // Validar los datos del cliente
     public static boolean validarCliente(String nombre, String direccion, String pais, String curp, String codigoPostal, String telefono, String codigoBarras) {
@@ -673,7 +385,7 @@ public class Productos {
             String query = "SELECT 1 FROM Clientes WHERE CURP = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, curp);
-            ResultSet rs = stmt.executeQuery();
+            java.sql.ResultSet rs = stmt.executeQuery();
             return rs.next();
         } catch (Exception e) {
             e.printStackTrace();
@@ -687,7 +399,7 @@ public class Productos {
             String query = "SELECT 1 FROM Clientes WHERE CodigoBarrasCliente = ?";
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, codigoBarras);
-            ResultSet rs = stmt.executeQuery();
+            java.sql.ResultSet rs = stmt.executeQuery();
             return rs.next();
         } catch (Exception e) {
             e.printStackTrace();
@@ -700,7 +412,7 @@ public class Productos {
         try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
             String query = "SELECT CodigoBarrasCliente, NombreCliente, Direccion, Telefono FROM Clientes";
             PreparedStatement stmt = connection.prepareStatement(query);
-            ResultSet rs = stmt.executeQuery();
+            java.sql.ResultSet rs = stmt.executeQuery();
 
             DefaultTableModel model = (DefaultTableModel) jTable2.getModel();
             model.setRowCount(0); // Limpiar tabla
@@ -723,7 +435,7 @@ public class Productos {
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, codigoBarras);
             stmt.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error al eliminar cliente.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -743,7 +455,7 @@ public class Productos {
             stmt.setString(6, telefono);
             stmt.setString(7, codigoBarras);
             stmt.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Error al editar cliente.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -757,23 +469,686 @@ public class Productos {
             PreparedStatement stmt = connection.prepareStatement(query);
             stmt.setString(1, curp);
             stmt.setString(2, codigoBarrasActual);
-            ResultSet rs = stmt.executeQuery();
+            java.sql.ResultSet rs = stmt.executeQuery();
             return rs.next();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
+    
+    public static int obtenerIdEmpleado(String nombreUsuario) {
+        int empleado_id = -1;
+
+        try (Connection connection = DriverManager.getConnection(aburl, absername, abassword)) {
+            String query = "SELECT empleado_id FROM empleados WHERE nombre_usuario = ?";
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setString(1, nombreUsuario);
+            java.sql.ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                empleado_id = rs.getInt("empleado_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return empleado_id;
+    }
+    
+    //Parte del monfly
+    
+    public void agregarProducto(String nombre, Date fechaCaducidad, int cantidad, String codigoBarras, int categoryID, double precio, String marca, String proveedor, String descripcion, int stockMinimo) {
+    String sql = "INSERT INTO Inventario (NombreProducto, FechaCaducidad, Cantidad, CodigoBarras, CategoryID, Precio, Marca, Proveedor, Descripcion, StockMinimo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    try (
+        Connection connection = DriverManager.getConnection(burl, busername, bpassword);
+        PreparedStatement stmt = connection.prepareStatement(sql)
+    ) {
+        stmt.setString(1, nombre);
+        stmt.setDate(2, new java.sql.Date(fechaCaducidad.getTime()));
+        stmt.setInt(3, cantidad);
+        stmt.setString(4, codigoBarras);
+        stmt.setInt(5, categoryID);
+        stmt.setDouble(6, precio);
+        stmt.setString(7, marca);
+        stmt.setString(8, proveedor);
+        stmt.setString(9, descripcion);
+        stmt.setInt(10, stockMinimo);
+        stmt.executeUpdate();
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+
+    
+
+// Modelo de datos de inventario
+    public class Inventario {
+        private int idProducto;
+        private String nombreProducto;
+        private String fechaCaducidad;
+        private int cantidad;
+        private String codigoBarras;
+        private int categoryID;
+        private double precio;
+        private String marca;
+        private String proveedor;
+        private String descripcion;
+        private int stockMinimo;
+
+        
+       public int getIdProducto() { return idProducto; }
+        public void setIdProducto(int idProducto) { this.idProducto = idProducto; }
+        public String getNombreProducto() { return nombreProducto; }
+        public void setNombreProducto(String nombreProducto) { this.nombreProducto = nombreProducto; }
+        public String getFechaCaducidad() { return fechaCaducidad; }
+        public void setFechaCaducidad(String fechaCaducidad) { this.fechaCaducidad = fechaCaducidad; }
+        public int getCantidad() { return cantidad; }
+        public void setCantidad(int cantidad) { this.cantidad = cantidad; }
+        public String getCodigoBarras() { return codigoBarras; }
+        public void setCodigoBarras(String codigoBarras) { this.codigoBarras = codigoBarras; }
+        public int getCategoryID() { return categoryID; }
+        public void setCategoryID(int categoryID) { this.categoryID = categoryID; }
+        public double getPrecio() { return precio; }
+        public void setPrecio(double precio) { this.precio = precio; }
+        public String getMarca() { return marca; }
+        public void setMarca(String marca) { this.marca = marca; }
+        public String getProveedor() { return proveedor; }
+        public void setProveedor(String proveedor) { this.proveedor = proveedor; }
+        public String getDescripcion() { return descripcion; }
+        public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+        public int getStockMinimo() { return stockMinimo; }
+        public void setStockMinimo(int stockMinimo) { this.stockMinimo = stockMinimo; }
+}
+      // Método para obtener datos del inventario
+    public List<Inventario> obtenerInventario() {
+    List<Inventario> inventarioList = new ArrayList<>();
+    String sql = "SELECT * FROM Inventario";
+
+    try (Connection connection = DriverManager.getConnection(burl, busername, bpassword);
+        PreparedStatement stmt = connection.prepareStatement(sql)
+    ){
+        java.sql.ResultSet rs = stmt.executeQuery(sql);
+
+        while (rs.next()) {
+            Inventario item = new Inventario();
+            item.setIdProducto(rs.getInt("IDproducto"));
+            item.setNombreProducto(rs.getString("NombreProducto"));
+
+            Date fechaCaducidad = rs.getDate("FechaCaducidad");
+            if (fechaCaducidad != null) {
+                item.setFechaCaducidad(fechaCaducidad.toString());
+            } else {
+                item.setFechaCaducidad(null);
+            }
+
+            item.setCantidad(rs.getInt("Cantidad"));
+            item.setCodigoBarras(rs.getString("CodigoBarras"));
+            item.setCategoryID(rs.getInt("CategoryID"));
+            item.setPrecio(rs.getDouble("Precio"));
+            item.setMarca(rs.getString("Marca"));
+            item.setProveedor(rs.getString("Proveedor"));
+            item.setDescripcion(rs.getString("Descripcion"));
+            item.setStockMinimo(rs.getInt("StockMinimo"));
+            inventarioList.add(item);
+        }
+
+    } catch (Exception e) {
+        System.err.println("Error al obtener el inventario: " + e.getMessage());
+        e.printStackTrace();
+    }
+
+    return inventarioList;
+}
 
 
-   
+    // Método para mostrar el inventario en la consola (pruebas)
+    private void mostrarInventario() {
+        List<Inventario> inventarioList = obtenerInventario();
+        for (Inventario item : inventarioList) {
+            System.out.println("Producto: " + item.getNombreProducto() + ", Precio: " + item.getPrecio());
+        }
+    }
+    
+    public int obtenerCategoryID(String nombreCategoria) {
+    int categoryID = -1;
+    String sql = "SELECT categoryID FROM Categoria WHERE nombreCategoria = ?";
+    
+    try (
+         Connection connection = DriverManager.getConnection(burl, busername, bpassword);
+         PreparedStatement stmt = connection.prepareStatement(sql)) {
+        
+        stmt.setString(1, nombreCategoria);
+        java.sql.ResultSet rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            categoryID = rs.getInt("categoryID");
+        }
+        
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+    
+    return categoryID;
+}
+    
+    
+    //Parte de Jose-------------------------------------------------------------
+    public void agregarAdministrador(String nombreUsuario, String contrasena, String correo, String nombreCompleto, String telefono, String direccion) {
+        try {
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+            String query = "INSERT INTO administrador (nombre_usuario, contrasena, correo, nombre_completo, telefono, direccion) VALUES (?, ?, ?, ?, ?, ?)";
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, nombreUsuario);
+            stmt.setString(2, hashPassword(contrasena));
+            stmt.setString(3, correo);
+            stmt.setString(4, nombreCompleto);
+            stmt.setString(5, telefono);
+            stmt.setString(6, direccion);
+            stmt.executeUpdate();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+                if (connection != null)
+                    connection.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    
+    
+    public String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedHash = digest.digest(password.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : encodedHash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
+    
+    public boolean hayAdministradores() {
+        boolean existenAdmins = false;
+        java.sql.ResultSet rs = null;
+    
+        try {
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+            String query = "SELECT COUNT(*) AS total FROM administrador";
+            stmt = connection.prepareStatement(query);
+            rs = stmt.executeQuery();
+        
+            if (rs.next()) {
+                existenAdmins = rs.getInt("total") > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (connection != null) connection.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return existenAdmins;
+    }
+    
+    
+    public boolean verificarCredenciales(String usuario, String contrasena, String rol) {
+        java.sql.ResultSet rs = null;
+        boolean credencialesValidas = false;
+    
+        try {
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+            String query;
+
+            if ("Administrador".equals(rol)) {
+                query = "SELECT * FROM administrador WHERE nombre_usuario = ? AND contrasena = ?";
+                stmt = connection.prepareStatement(query);
+                stmt.setString(1, usuario);
+                stmt.setString(2, contrasena);
+            } else {
+                query = "SELECT * FROM empleados WHERE nombre_usuario = ? AND contrasena = ? AND rol = ?";
+                stmt = connection.prepareStatement(query);
+                stmt.setString(1, usuario);
+                stmt.setString(2, contrasena);
+                stmt.setString(3, rol);
+            }
+
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                credencialesValidas = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (connection != null) connection.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return credencialesValidas;
+    }
+    
+    
+    public List<String[]> buscarEmpleados(String criterio) {
+        List<String[]> empleados = new ArrayList<>();
+        java.sql.ResultSet rs = null;
+        try {
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+            String query = "SELECT empleado_id, nombre_usuario, nombre, telefono, correo_electronico, direccion, turno, rol, salario FROM empleados WHERE nombre LIKE ? OR turno LIKE ? OR nombre_usuario LIKE ? OR rol LIKE ?";
+            stmt = connection.prepareStatement(query);
+            String searchPattern = "%" + criterio + "%";
+            stmt.setString(1, searchPattern);
+            stmt.setString(2, searchPattern);
+            stmt.setString(3, searchPattern);
+            stmt.setString(4, searchPattern);
+            rs = stmt.executeQuery();
+        
+            while (rs.next()) {
+                String[] empleado = new String[]{
+                    rs.getString("empleado_id"),
+                    rs.getString("nombre_usuario"),
+                    rs.getString("nombre"),
+                    rs.getString("telefono"),
+                    rs.getString("correo_electronico"),
+                    rs.getString("direccion"),
+                    rs.getString("turno"),
+                    rs.getString("rol"),
+                    rs.getString("salario")
+                };
+                empleados.add(empleado);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (connection != null) connection.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return empleados;
+    }
+    
+    
+    public boolean insertarEmpleado(String nombre, String direccion, String telefono, String correoElectronico, String rfc, String curp, String salario, String nombreUsuario, String contrasena, String turno, String rol) { 
+        try { 
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+        if (datoExiste("curp", curp) || datoExiste("nombre_usuario", nombreUsuario)){
+            return false;
+        }
+        
+        String query = "INSERT INTO empleados (nombre, direccion, telefono, correo_electronico, rfc, curp, turno, salario, nombre_usuario, contrasena, rol) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        stmt = connection.prepareStatement(query);
+        
+        stmt.setString(1, nombre);
+        stmt.setString(2, direccion);
+        stmt.setString(3, telefono);
+        stmt.setString(4, correoElectronico);
+        stmt.setString(5, rfc);
+        stmt.setString(6, curp);
+        stmt.setString(7, turno);
+        stmt.setString(8, salario);
+        stmt.setString(9, nombreUsuario);
+        stmt.setString(10, contrasena);
+        stmt.setString(11, rol);
+        stmt.executeUpdate();
+        stmt.close();
+        connection.close();
+        return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
+    
+    public boolean actualizarEmpleado(String empleadoId, String nombre, String direccion, String telefono, String correoElectronico, String rfc, String curp, String salario, String nombreUsuario, String contrasena, String turno, String rol) {
+        try {
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+            
+            if (datoExisteActualizacion("curp", curp, empleadoId) || datoExisteActualizacion("nombre_usuario", nombreUsuario, empleadoId)) {
+                return false;
+            }
+            
+            String query = "UPDATE empleados SET nombre = ?, direccion = ?, telefono = ?, correo_electronico = ?, rfc = ?, curp = ?, turno = ?, salario = ?, nombre_usuario = ?, contrasena = ?, rol = ? WHERE empleado_id = ?";
+            stmt = connection.prepareStatement(query);
+
+            stmt.setString(1, nombre);
+            stmt.setString(2, direccion);
+            stmt.setString(3, telefono);
+            stmt.setString(4, correoElectronico);
+            stmt.setString(5, rfc);
+            stmt.setString(6, curp);
+            stmt.setString(7, turno);
+            stmt.setString(8, salario);
+            stmt.setString(9, nombreUsuario);
+            stmt.setString(10, contrasena);
+            stmt.setString(11, rol);
+            stmt.setString(12, empleadoId);
+
+            stmt.executeUpdate();
+            stmt.close();
+            connection.close();
+            return true;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
+    }
+    
+    
+    public List<String[]> cargarEmpleados() {
+        List<String[]> empleados = new ArrayList<>();
+        
+        java.sql.ResultSet rs = null;
+        try {
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+            String query = "SELECT empleado_id, nombre_usuario, telefono, correo_electronico, direccion, turno, rol, nombre, salario FROM empleados";
+            stmt = connection.prepareStatement(query);
+            rs = stmt.executeQuery(query);
+            
+            while (rs.next()) {
+                String[] empleado = new String[]{
+                    rs.getString("empleado_id"),
+                    rs.getString("nombre_usuario"),
+                    rs.getString("nombre"),
+                    rs.getString("telefono"),
+                    rs.getString("correo_electronico"),
+                    rs.getString("direccion"),
+                    rs.getString("turno"),
+                    rs.getString("rol"),
+                    rs.getString("Salario"),
+                    
+                };
+                empleados.add(empleado);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (connection != null) connection.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return empleados;
+    }
+    
+    
+    private boolean datoExiste(String columna, String valor) throws Exception {
+        String query = "SELECT COUNT(*) FROM empleados WHERE " + columna + " = ?";
+        stmt = connection.prepareStatement(query);
+        stmt.setString(1, valor);
+        java.sql.ResultSet rs = stmt.executeQuery();
+        rs.next();
+        boolean existe = rs.getInt(1) > 0;
+        rs.close();
+        stmt.close();
+        return existe;
+    }
+    
+    
+    private boolean datoExisteActualizacion(String columna, String valor, String empleadoId) throws Exception {
+        String query = "SELECT COUNT(*) FROM empleados WHERE " + columna + " = ? AND empleado_id != ?";
+        stmt = connection.prepareStatement(query);
+        stmt.setString(1, valor);
+        stmt.setString(2, empleadoId);
+        java.sql.ResultSet rs = stmt.executeQuery();
+        rs.next();
+        boolean existe = rs.getInt(1) > 0;
+        rs.close();
+        stmt.close();
+        return existe;
+    }
+    
+    public String[] obtenerEmpleadoPorId(String empleadoId) {
+        String[] empleado = null;
+        java.sql.ResultSet rs = null;
+        try {
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+            String query = "SELECT empleado_id, nombre, direccion, telefono, correo_electronico, rfc, curp, turno, salario, nombre_usuario, contrasena, rol FROM empleados WHERE empleado_id = ?";
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, empleadoId);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                empleado = new String[]{
+                    rs.getString("empleado_id"),
+                    rs.getString("nombre"),
+                    rs.getString("direccion"),
+                    rs.getString("telefono"),
+                    rs.getString("correo_electronico"),
+                    rs.getString("rfc"),
+                    rs.getString("curp"),
+                    rs.getString("turno"),
+                    rs.getString("salario"),
+                    rs.getString("nombre_usuario"),
+                    rs.getString("contrasena"),
+                    rs.getString("rol")
+                };
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+                if (connection != null) connection.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return empleado;
+    }
+
+    
+
+    
+    
+    public void eliminarEmpleado(String empleadoId) {
+        try {
+            connection = DriverManager.getConnection(dburl, dbusername, dbpassword);
+            String query = "DELETE FROM empleados WHERE empleado_id = ?";
+            stmt = connection.prepareStatement(query);
+            stmt.setString(1, empleadoId);
+            stmt.executeUpdate();
+            stmt.close();
+            connection.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    //--------------------------------------------------------------------------
+    
+    //Parte de Monfly-----------------------------------------------------------
+
+    public boolean insertarProducto(String codigoProducto, String codigoBarras, String descripcion, String marca, String rubro, String proveedor, int stockMinimo, int existencia, double iva, File imagenProducto, double precioFinal) {
+    String sql = "INSERT INTO Productos (CodigoProducto, CodigoBarras, Descripcion, Marca, Rubro, Proveedor, StockMinimo, Existencia, IVA, ImagenProducto, precioFinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    try (Connection connection = DriverManager.getConnection(burl, busername, bpassword);
+         PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        pstmt.setString(1, codigoProducto);
+        pstmt.setString(2, codigoBarras);
+        pstmt.setString(3, descripcion);
+        pstmt.setString(4, marca);
+        pstmt.setString(5, rubro);
+        pstmt.setString(6, proveedor);
+        pstmt.setInt(7, stockMinimo);
+        pstmt.setInt(8, existencia);
+        pstmt.setDouble(9, iva);
+        if (imagenProducto != null) {
+            InputStream is = new FileInputStream(imagenProducto);
+            pstmt.setBlob(10, is);
+        } else {
+            pstmt.setNull(10, java.sql.Types.BLOB);
+        }
+        pstmt.setDouble(11, precioFinal);
+
+        pstmt.executeUpdate();
+        return true;
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+    }
+}
 
 
+    public boolean actualizarProducto(String productoId, String codigoProducto, String codigoBarras, String descripcion, String marca, String rubro, String proveedor, int stockMinimo, int existencia, double iva, File imagenProducto, double precioFinal) {
+    String sql = "UPDATE Productos SET CodigoProducto = ?, CodigoBarras = ?, Descripcion = ?, Marca = ?, Rubro = ?, Proveedor = ?, StockMinimo = ?, Existencia = ?, IVA = ?, ImagenProducto = ?, precioFinal = ? WHERE ID = ?";
+    try (Connection connection = DriverManager.getConnection(burl, busername, bpassword);
+         PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        pstmt.setString(1, codigoProducto);
+        pstmt.setString(2, codigoBarras);
+        pstmt.setString(3, descripcion);
+        pstmt.setString(4, marca);
+        pstmt.setString(5, rubro);
+        pstmt.setString(6, proveedor);
+        pstmt.setInt(7, stockMinimo);
+        pstmt.setInt(8, existencia);
+        pstmt.setDouble(9, iva);
+        if (imagenProducto != null) {
+            InputStream is = new FileInputStream(imagenProducto);
+            pstmt.setBlob(10, is);
+        } else {
+            pstmt.setNull(10, java.sql.Types.BLOB);
+        }
+        pstmt.setDouble(11, precioFinal);
+        pstmt.setString(12, productoId);
+
+        pstmt.executeUpdate();
+        return true;
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+    }
+}
+
+    
+    public List<String[]> cargarProductos() {
+    List<String[]> productos = new ArrayList<>();
+    String sql = "SELECT ID, CodigoProducto, Descripcion, CodigoBarras, Marca, Rubro, Proveedor, precioFinal FROM Productos";
+    try (Connection connection = DriverManager.getConnection(burl, busername, bpassword);
+         PreparedStatement pstmt = connection.prepareStatement(sql);
+         java.sql.ResultSet rs = pstmt.executeQuery()) {
+        while (rs.next()) {
+            productos.add(new String[] {
+                rs.getString("ID"),
+                rs.getString("CodigoProducto"),
+                rs.getString("Descripcion"),
+                rs.getString("CodigoBarras"),
+                rs.getString("Marca"),
+                rs.getString("Rubro"),
+                rs.getString("Proveedor"),
+                String.valueOf(rs.getDouble("precioFinal"))
+            });
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+    return productos;
+}
 
 
+public String[] obtenerProductoPorId(String productoId) {
+    String[] producto = null;
+    java.sql.ResultSet rs = null;
+    try (Connection connection = DriverManager.getConnection(burl, busername, bpassword);
+         PreparedStatement stmt = connection.prepareStatement("SELECT ID, CodigoProducto, CodigoBarras, Descripcion, Marca, Rubro, Proveedor, StockMinimo, Existencia, IVA, precioFinal, ImagenProducto FROM Productos WHERE ID = ?")) {
+        stmt.setString(1, productoId);
+        rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            producto = new String[]{
+                rs.getString("ID"),
+                rs.getString("CodigoProducto"),
+                rs.getString("CodigoBarras"),
+                rs.getString("Descripcion"),
+                rs.getString("Marca"),
+                rs.getString("Rubro"),
+                rs.getString("Proveedor"),
+                rs.getString("StockMinimo"),
+                rs.getString("Existencia"),
+                rs.getString("IVA"),
+                rs.getString("precioFinal")
+            };
+
+            // Convertir el BLOB a un archivo temporal
+            Blob blob = rs.getBlob("ImagenProducto");
+            if (blob != null) {
+                producto = Arrays.copyOf(producto, producto.length + 1);
+                producto[producto.length - 1] = saveBlobToFile(blob);
+            } else {
+                producto = Arrays.copyOf(producto, producto.length + 1);
+                producto[producto.length - 1] = null;
+            }
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    } finally {
+        try {
+            if (rs != null) rs.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    return producto;
+}
+
+private String saveBlobToFile(Blob blob) {
+    try {
+        InputStream is = blob.getBinaryStream();
+        File tempFile = File.createTempFile("product_image", ".png");
+        tempFile.deleteOnExit();
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
+        }
+        return tempFile.getAbsolutePath();
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        return null;
+    }
+}
+
+public boolean eliminarProducto(String productoId) {
+    String sql = "DELETE FROM Productos WHERE ID = ?";
+    try (Connection connection = DriverManager.getConnection(burl, busername, bpassword);
+         PreparedStatement pstmt = connection.prepareStatement(sql)) {
+        pstmt.setString(1, productoId);
+        int rowsAffected = pstmt.executeUpdate();
+        return rowsAffected > 0;
+    } catch (Exception ex) {
+        ex.printStackTrace();
+        return false;
+    }
 }
 
 
 
 
+
+}
 
