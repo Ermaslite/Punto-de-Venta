@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -23,7 +24,7 @@ public class Empleado extends javax.swing.JFrame {
         this.backend = backend;
         this.empleadoId = empleadoId;
         initComponents();
-        setTitle("Empleados");
+        setTitle("Punto de Venta - Agregar Empleado");
         jTextField1.setBorder(new CompoundBorder(jTextField1.getBorder(),new EmptyBorder(new Insets(5, 10, 5, 10))));
         jTextField2.setBorder(new CompoundBorder(jTextField2.getBorder(),new EmptyBorder(new Insets(5, 10, 5, 10))));
         jTextField3.setBorder(new CompoundBorder(jTextField3.getBorder(),new EmptyBorder(new Insets(5, 10, 5, 10))));
@@ -35,7 +36,8 @@ public class Empleado extends javax.swing.JFrame {
         jTextField9.setBorder(new CompoundBorder(jTextField9.getBorder(),new EmptyBorder(new Insets(5, 10, 5, 10))));
         jButton1.requestFocusInWindow();
         agregarFocusListeners();
-        if (empleadoId != null) { 
+        if (empleadoId != null) {
+            setTitle("Punto de Venta - Editar Empleado");
             cargarDatosEmpleado();
         }
     }
@@ -351,13 +353,16 @@ public class Empleado extends javax.swing.JFrame {
         String contrasena = jTextField9.getText();
         String turno = (String) jComboBox1.getSelectedItem();
         String rol = (String) jComboBox2.getSelectedItem();
-        Productos backend = new Productos();
-        
+        boolean resultado;
         if (empleadoId == null) {
-            backend.insertarEmpleado(nombre, direccion, telefono, correo, rfc, curp, salario, usuario, contrasena, turno, rol); 
+            resultado = backend.insertarEmpleado(nombre, direccion, telefono, correo, rfc, curp, salario, usuario, contrasena, turno, rol);
         } else {
-            backend.actualizarEmpleado(empleadoId, nombre, direccion, telefono, correo, rfc, curp, salario, usuario, contrasena, turno, rol); 
-        } if (listaEmpleadosWindow != null) { 
+            resultado = backend.actualizarEmpleado(empleadoId, nombre, direccion, telefono, correo, rfc, curp, salario, usuario, contrasena, turno, rol);
+        } if (resultado) {
+            
+        } else {
+            JOptionPane.showMessageDialog(null, "El CURP o nombre de usuario ya existe, por favor elige otros.");
+        } if (listaEmpleadosWindow != null) {
             listaEmpleadosWindow.actualizarTabla();
         }
     }
@@ -365,6 +370,7 @@ public class Empleado extends javax.swing.JFrame {
     private void cargarDatosEmpleado() {
         String[] datos = backend.obtenerEmpleadoPorId(empleadoId);
         if (datos != null) {
+            jLabel1.setText("Editar Empleado");
             jTextField1.setText(datos[1]);
             jTextField2.setText(datos[2]);
             jTextField3.setText(datos[3]);

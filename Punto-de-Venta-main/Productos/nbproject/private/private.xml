@@ -3,17 +3,17 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/nProducto.java</file>
             <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/Inicio.java</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/DAOS/ClienteDAO.java</file>
+            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/ListaProducto.java</file>
+            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/ReporteVenta.java</file>
             <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/Ticket.java</file>
             <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/Productos.java</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/Empleado.java</file>
             <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/RegistroAdm.java</file>
+            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/Empleado.java</file>
             <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/procesoVenta.java</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/Ventanas/FRMClienteCRUD.java</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/Modelos/ModeloCliente.java</file>
             <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/ListaEmpleados.java</file>
-            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/Ventanas/FRMMenuPrincipal.java</file>
+            <file>file:/C:/Users/PC/Documents/NetBeansProjects/Punto-de-Venta-main/Productos/src/productos/PAdministrador.java</file>
         </group>
     </open-files>
 </project-private>

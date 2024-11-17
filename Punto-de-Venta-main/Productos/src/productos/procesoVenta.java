@@ -7,8 +7,8 @@ package productos;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
-import static productos.Productos.validarCliente;
+import productos.Productos;
+import static productos.Productos.obtenerIdEmpleado;
 
 /**
  *
@@ -17,12 +17,15 @@ import static productos.Productos.validarCliente;
 public class procesoVenta extends javax.swing.JFrame {
 private double totalVendido = 0.0; 
 private int empleado_id;
+
     /**
      * Creates new form procesoVenta
      */
     public procesoVenta() {
         initComponents();
+
     }
+     
 public void vaciarCampos() {
     Nombre.setText("");
     Direccion.setText("");
@@ -86,10 +89,10 @@ public void vaciarCampos() {
         jLabel10 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
         Buscar = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
         jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable2 = new javax.swing.JTable();
 
@@ -228,6 +231,11 @@ public void vaciarCampos() {
             }
         });
 
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
         jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 jTextField1KeyPressed(evt);
@@ -348,25 +356,30 @@ public void vaciarCampos() {
             }
         });
 
-        jButton3.setText("Editar");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
-
         Buscar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 BuscarActionPerformed(evt);
             }
         });
 
-        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/productos/Utileria/search_locate_find_icon-icons.com_67287.png"))); // NOI18N
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/productos/search_locate_find_icon-icons.com_67287.png"))); // NOI18N
+        jLabel11.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel11MouseClicked(evt);
+            }
+        });
 
         jButton4.setText("Ver");
         jButton4.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton4ActionPerformed(evt);
+            }
+        });
+
+        jButton5.setText("Generar");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
             }
         });
 
@@ -399,26 +412,26 @@ public void vaciarCampos() {
             .addGroup(jPanel4Layout.createSequentialGroup()
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(295, 295, 295)
-                                .addComponent(barras, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addGap(319, 319, 319)
-                                .addComponent(jLabel10)))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jButton1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jButton2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jButton4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(Buscar, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel11)))
+                        .addComponent(jLabel11))
+                    .addGroup(jPanel4Layout.createSequentialGroup()
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGap(319, 319, 319)
+                                .addComponent(jLabel10))
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addGap(295, 295, 295)
+                                .addComponent(barras, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton5)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         jPanel4Layout.setVerticalGroup(
@@ -453,12 +466,13 @@ public void vaciarCampos() {
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jLabel10)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(barras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(barras, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jButton5))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton1)
                             .addComponent(jButton2)
-                            .addComponent(jButton3)
                             .addComponent(jButton4)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
@@ -565,8 +579,6 @@ public void vaciarCampos() {
     procesoVenta nuevaVenta = new procesoVenta(this.Usuarios.getText());
     nuevaVenta.setVisible(true);
 
-
-
     }//GEN-LAST:event_RealizarventaActionPerformed
 
     private void CerrarCajaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CerrarCajaActionPerformed
@@ -588,16 +600,16 @@ public void vaciarCampos() {
         JOptionPane.showMessageDialog(this, "Por favor, selecciona un producto para eliminar", "Error", JOptionPane.ERROR_MESSAGE);
     }
     }//GEN-LAST:event_EliminarproductoActionPerformed
-
-    public procesoVenta(String usuario) { initComponents(); this.Usuarios.setText(usuario); 
+ public procesoVenta(String usuario) { initComponents(); this.Usuarios.setText(usuario); 
 this.empleado_id = Productos.obtenerIdEmpleado(usuario); }
+   
 
     private void jTable1ComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_jTable1ComponentAdded
         // TODO add your handling code here:
     }//GEN-LAST:event_jTable1ComponentAdded
-    //Obtener Usuario
-    public String getUsuario() { return this.Usuarios.getText(); }
-    
+     public String getUsuario() { return this.Usuarios.getText(); }
+
+     
     private void jTextField1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyPressed
 if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_ENTER)
 { String codigo = jTextField1.getText();
@@ -642,21 +654,25 @@ Productos.buscarProducto(codigo, this, jTable1, Dinerovendido); jTextField1.setT
     }//GEN-LAST:event_barrasActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    // Obtener los datos del cliente desde los campos de texto
-    String nombre = Nombre.getText();
-    String direccion = Direccion.getText();
-    String pais = Pais.getText();
-    String curp = Curp.getText();
-    String codigoPostal = postal.getText();
-    String Telefono = telefono.getText();
-    String codigoBarras = barras.getText();
+           String nombreCliente = Nombre.getText();
+        String direccionCliente = Direccion.getText();
+        String paisCliente = Pais.getText();
+        String curpCliente = Curp.getText();
+        String codigoPostalCliente = postal.getText();
+        String telefonoCliente = telefono.getText();
+        String codigoBarras = Productos.generarCodigoDeBarras();
 
-    // Validar y guardar cliente usando métodos del backend
-    if (validarCliente(nombre, direccion, pais, curp, codigoPostal, Telefono, codigoBarras)) {
-        Productos.insertarCliente(nombre, direccion, pais, curp, codigoPostal, Telefono, codigoBarras);
-        actualizarTablaClientes();
-        vaciarCampos();
-    }
+        // Mostrar el código de barras generado en el campo de texto
+        barras.setText(codigoBarras);
+
+        // Validar e insertar el cliente en la base de datos
+        if (Productos.validarCliente(nombreCliente, direccionCliente, paisCliente, curpCliente, codigoPostalCliente, telefonoCliente, codigoBarras)) {
+            Productos.insertarCliente(nombreCliente, direccionCliente, paisCliente, curpCliente, codigoPostalCliente, telefonoCliente, codigoBarras);
+            JOptionPane.showMessageDialog(this, "Cliente insertado correctamente.");
+            actualizarTablaClientes();
+            vaciarCampos();
+        }
+   vaciarCampos();
 
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -672,42 +688,25 @@ Productos.buscarProducto(codigo, this, jTable1, Dinerovendido); jTextField1.setT
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-    int selectedRow = jTable2.getSelectedRow();
-    if (selectedRow >= 0) {
-        String codigoBarras = jTable2.getValueAt(selectedRow, 0).toString(); // Obtener el código de barras del cliente seleccionado
-        String nombre = Nombre.getText();
-        String direccion = Direccion.getText();
-        String pais = Pais.getText();
-        String curp = Curp.getText();
-        String codigoPostal = postal.getText();
-        String Telefono = telefono.getText();
-
-        // Validaciones
-        if (nombre.matches("[a-zA-Z\\s]+") && pais.matches("[a-zA-Z\\s]+") &&
-            curp.matches("[A-Z0-9]{18}") && !Productos.verificarCurpExistente(curp, codigoBarras) &&
-                codigoPostal.matches("\\d{5,10}") && Telefono.matches("\\d{10,15}")) {
-            
-            // Editar el cliente en la base de datos
-            Productos.editarCliente(codigoBarras, nombre, direccion, pais, curp, codigoPostal, Telefono);
-
-            // Actualizar la tabla de clientes
-            Productos.actualizarTablaClientes(jTable2);
-
-            // Vaciar los campos de texto
-            vaciarCampos();
-        } else {
-            JOptionPane.showMessageDialog(this, "Error en la validación de los datos", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    } else {
-        JOptionPane.showMessageDialog(this, "Selecciona un cliente para editar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-    }
-
-    }//GEN-LAST:event_jButton3ActionPerformed
-
     private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
 Productos.actualizarTablaClientes(jTable2); 
     }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+      String codigoDeBarras = Productos.generarCodigoDeBarras(); // Mostrar el código de barras en el campo de texto
+barras.setText(codigoDeBarras);
+        
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jLabel11MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel11MouseClicked
+String nombre = Buscar.getText(); // Buscar y mostrar los clientes en la tabla
+Productos.buscarClientesPorNombre(nombre, jTable2);
+
+    }//GEN-LAST:event_jLabel11MouseClicked
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
 private void actualizarTablaClientes() {
     Productos.actualizarTablaClientes(jTable2);
 }
@@ -742,6 +741,7 @@ private void actualizarTablaClientes() {
                 new procesoVenta().setVisible(true);
             }
         });
+ 
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -760,8 +760,8 @@ private void actualizarTablaClientes() {
     private javax.swing.JTextField barras;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;

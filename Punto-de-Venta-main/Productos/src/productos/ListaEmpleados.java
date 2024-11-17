@@ -24,7 +24,7 @@ public class ListaEmpleados extends javax.swing.JFrame {
         initComponents();
         
         jScrollPane1.getViewport().setBackground(new Color(250,241,233));
-        setTitle("Lista de Empleados");
+        setTitle("Punto de Venta - Lista de Empleados");
         jTextField1.setBorder(new CompoundBorder(jTextField1.getBorder(),new EmptyBorder(new Insets(5, 10, 5, 10))));
         jButton1.requestFocusInWindow();
         
@@ -103,7 +103,7 @@ public class ListaEmpleados extends javax.swing.JFrame {
         jButton2.setBackground(new java.awt.Color(69, 81, 114));
         jButton2.setFont(new java.awt.Font("SansSerif", 1, 12)); // NOI18N
         jButton2.setForeground(new java.awt.Color(204, 255, 255));
-        jButton2.setText("Añadir");
+        jButton2.setText("Agregar");
         jButton2.setBorder(null);
         jButton2.setBorderPainted(false);
         jButton2.setContentAreaFilled(false);
@@ -199,9 +199,17 @@ public class ListaEmpleados extends javax.swing.JFrame {
                 {null, null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "ID", "Title 2", "Title 3", "Title 4"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
