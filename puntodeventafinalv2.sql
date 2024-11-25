@@ -256,6 +256,148 @@ CREATE TABLE `ventas` (
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+CREATE TABLE AuditoriaVentas (
+    IdAuditoria INT AUTO_INCREMENT PRIMARY KEY,
+    Operacion VARCHAR(10) NOT NULL, -- Tipo de operación: INSERT, UPDATE, DELETE
+    Usuario VARCHAR(50),            -- Usuario que realizó la operación
+    FechaHora DATETIME NOT NULL,    -- Fecha y hora del cambio
+    Detalles TEXT                   -- Detalles de la operación
+);
+DELIMITER //
+
+CREATE TRIGGER Insert_Ventas
+AFTER INSERT ON ventas
+FOR EACH ROW
+BEGIN
+    DECLARE detalles TEXT;
+    SET detalles = CONCAT(
+        'Nueva Venta: VentaID=', NEW.VentaID, 
+        ', Total=', NEW.Total,
+        ', DineroVendido=', NEW.DineroVendido,
+        ', ClienteID=', IFNULL(NEW.ClienteID, 'NULL')
+    );
+
+    INSERT INTO AuditoriaVentas (Operacion, Usuario, FechaHora, Detalles)
+    VALUES ('INSERT', USER(), NOW(), detalles);
+END //
+
+DELIMITER ;
+DELIMITER //
+
+CREATE TRIGGER Update_Ventas
+AFTER UPDATE ON ventas
+FOR EACH ROW
+BEGIN
+    DECLARE detalles TEXT;
+    SET detalles = CONCAT(
+        'Venta Actualizada: VentaID=', OLD.VentaID, 
+        ', Total Anterior=', OLD.Total,
+        ', Total Nuevo=', NEW.Total,
+        ', DineroVendido Anterior=', OLD.DineroVendido,
+        ', DineroVendido Nuevo=', NEW.DineroVendido
+    );
+
+    INSERT INTO AuditoriaVentas (Operacion, Usuario, FechaHora, Detalles)
+    VALUES ('UPDATE', USER(), NOW(), detalles);
+END //
+
+DELIMITER ;
+DELIMITER //
+
+CREATE TRIGGER Delete_Ventas
+AFTER DELETE ON ventas
+FOR EACH ROW
+BEGIN
+    DECLARE detalles TEXT;
+    SET detalles = CONCAT(
+        'Venta Eliminada: VentaID=', OLD.VentaID,
+        ', Total=', OLD.Total,
+        ', DineroVendido=', OLD.DineroVendido
+    );
+
+    INSERT INTO AuditoriaVentas (Operacion, Usuario, FechaHora, Detalles)
+    VALUES ('DELETE', USER(), NOW(), detalles);
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE TRIGGER Validar_Productos
+BEFORE INSERT ON productos
+FOR EACH ROW
+BEGIN
+    -- Validar que el precio no sea negativo
+    IF NEW.precioFinal < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El precio no puede ser negativo.';
+    END IF;
+
+    -- Validar que el nombre del producto no esté vacío
+    IF NEW.Descripcion IS NULL OR TRIM(NEW.Descripcion) = '' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El nombre del producto no puede estar vacío.';
+    END IF;
+
+    -- Validar que el código de barras tenga entre 8 y 20 caracteres
+    IF CHAR_LENGTH(NEW.CodigoBarras) < 8 OR CHAR_LENGTH(NEW.CodigoBarras) > 20 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El código de barras debe tener entre 8 y 20 caracteres.';
+    END IF;
+END;
+//
+
+DELIMITER ;
+DELIMITER //
+
+CREATE TRIGGER ValidarProductUp
+BEFORE UPDATE ON productos
+FOR EACH ROW
+BEGIN
+    -- Validar que el precio no sea negativo
+    IF NEW.precioFinal < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El precio no puede ser negativo.';
+    END IF;
+
+    -- Validar que el nombre del producto no esté vacío
+    IF NEW.Descripcion IS NULL OR TRIM(NEW.Descripcion) = '' THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El nombre del producto no puede estar vacío.';
+    END IF;
+
+    -- Validar que el código de barras tenga entre 8 y 20 caracteres
+    IF CHAR_LENGTH(NEW.CodigoBarras) < 8 OR CHAR_LENGTH(NEW.CodigoBarras) > 20 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Error: El código de barras debe tener entre 8 y 20 caracteres.';
+    END IF;
+END;
+//
+
+DELIMITER ;
+DELIMITER //
+
+CREATE FUNCTION calcularCantProduc(folioVenta INT)
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE totalProductos INT;
+
+    -- Sumar las cantidades de productos en los detalles de la venta
+    SELECT SUM(Cantidad)
+    INTO totalProductos
+    FROM detalleventas
+    WHERE VentaID = folioVenta;
+
+    -- Retornar 0 si no hay registros, para evitar un valor NULL
+    RETURN IFNULL(totalProductos, 0);
+END;
+//
+
+DELIMITER ;
+
+
+SELECT * FROM AuditoriaVentas;
 --
 -- Dumping data for table `ventas`
 --
