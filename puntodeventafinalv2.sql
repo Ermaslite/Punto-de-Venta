@@ -367,7 +367,7 @@ BEGIN
     END IF;
 
     -- Validar que el código de barras tenga entre 8 y 20 caracteres
-    IF CHAR_LENGTH(NEW.CodigoBarras) < 8 OR CHAR_LENGTH(NEW.CodigoBarras) > 20 THEN
+    IF NEW.CodigoBarras IS NOT NULL AND (CHAR_LENGTH(NEW.CodigoBarras) < 8 OR CHAR_LENGTH(NEW.CodigoBarras) > 20) THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Error: El código de barras debe tener entre 8 y 20 caracteres.';
     END IF;
@@ -384,7 +384,7 @@ BEGIN
     DECLARE totalProductos INT;
 
     -- Sumar las cantidades de productos en los detalles de la venta
-    SELECT SUM(Cantidad)
+SELECT IFNULL(SUM(Cantidad), 0)
     INTO totalProductos
     FROM detalleventas
     WHERE VentaID = folioVenta;
